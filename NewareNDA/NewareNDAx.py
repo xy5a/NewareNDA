@@ -13,6 +13,9 @@ from datetime import datetime, timedelta, timezone
 import xml.etree.ElementTree as ET
 import pandas as pd
 
+from typing import List, Optional
+from dataclasses import dataclass, field
+
 from .utils import _generate_cycle_number, _count_changes
 from .dicts import rec_columns, dtype_dict, aux_dtype_dict, state_dict, \
     multiplier_dict
@@ -138,6 +141,7 @@ def _aux_bytes_74_to_list_ndc(bytes):
     return [Index, Aux, V/10000, T/10, t/10]
 
 
+@dataclass
 class NDAx:
     """
     Object to store all gathered data from an ndax file
@@ -145,21 +149,22 @@ class NDAx:
     Args:
         filename (str): Name of an .ndax file to read
     """
-    def __init__(self, filename):
-        self.filename = filename
 
-        self.barcode = None
-        self.active_mass = None # mg
-        self.start_time = None
-        self.PN = None
-        self.aux_ch_dict = {}
-        self.filelist = []
-        self.data_df = {}
+    filename: str
 
-        self.server_version = None
-        self.client_version = None
-        self.control_unit_version = None
-        self.tester_version = None
+    barcode: Optional[str] = None
+    active_mass: Optional[float] = None  # mg
+    start_time: Optional[datetime] = None
+    PN = None
+    aux_ch_dict = {}
+    filelist: List[str] = field(default_factory=list)
+
+    data_df: pd.DataFrame = field(default_factory=pd.DataFrame)
+
+    server_version: Optional[str] = None
+    client_version: Optional[str] = None
+    control_unit_version: Optional[str] = None
+    tester_version: Optional[str] = None
 
     def read_ndax(self, software_cycle_number=False, cycle_mode='chg'):
         """
